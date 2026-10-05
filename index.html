@@ -7,6 +7,8 @@
 <meta name="description" content="Ferăstrău cu acumulator KRONBERG 36V, 2 baterii 10Ah, bară 30 cm, lubrifiere automată. 299 lei în loc de 649 lei. Plata la livrare.">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="dns-prefetch" href="//tooltrader24-fan-proxy.vercel.app">
+<link rel="preconnect" href="https://tooltrader24-fan-proxy.vercel.app" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Oswald:wght@500;600;700&family=Source+Sans+3:wght@400;600;700&display=swap" rel="stylesheet">
 
 <!-- Meta Pixel -->
@@ -699,25 +701,33 @@ a{color:inherit}
     return true;
   }
 
-  function fetchAllOfficeMatches(term){
-    var all=[],seen={},pages=0;
-    function page(offset){
-      pages++;
-      var url=officeApiBase+'?term='+encodeURIComponent(term)+'&offset='+offset+'&limit=200';
-      return fetch(url,{headers:{'Accept':'application/json'}}).then(function(r){if(!r.ok) throw new Error('office api');return r.json();}).then(function(json){
-        var rows=officeRows(json);
-        rows.forEach(function(o){var key=String(o.id||o.code||officeLabel(o));if(!seen[key]){seen[key]=1;all.push(o);}});
-        var next=nextOffset(json);
-        if(next!==null && isFinite(next) && next>offset && rows.length && pages<30) return page(next);
-        return all;
-      });
-    }
-    return page(0);
+  /* Fast FAN office search: show the first page immediately, then paginate only on scroll. */
+  var OFFICE_PAGE_SIZE = 50;
+  var officeSearchSeq = 0;
+  var officeAbortController = null;
+  var officeState = {term:'',rows:[],seen:{},next:0,loading:false,done:false};
+  var officeCache = {};
+
+  function officeKey(o){ return String(o.id || o.code || officeLabel(o)); }
+
+  function resetOfficeState(term){
+    officeState={term:term,rows:[],seen:{},next:0,loading:false,done:false};
   }
-  function renderOffices(rows){
-    officeResults.innerHTML='';
-    if(!rows.length){officeStatus.textContent='Nu am găsit puncte FAN pentru această căutare.';officeResults.classList.remove('show');return;}
-    officeStatus.textContent=rows.length+' puncte găsite. Selectează unul.';
+
+  function addOfficeRows(rows){
+    rows.forEach(function(o){
+      var key=officeKey(o);
+      if(!officeState.seen[key]){ officeState.seen[key]=1; officeState.rows.push(o); }
+    });
+  }
+
+  function renderOffices(rows,append){
+    if(!append) officeResults.innerHTML='';
+    if(!rows.length && !append){
+      officeStatus.textContent='Nu am găsit puncte FAN pentru această căutare.';
+      officeResults.classList.remove('show');
+      return;
+    }
     rows.forEach(function(o){
       var b=document.createElement('button');b.type='button';b.className='office-result';b.setAttribute('role','option');
       var strong=document.createElement('b');strong.textContent=officeLabel(o);
@@ -726,15 +736,85 @@ a{color:inherit}
       b.addEventListener('click',function(){selectedOffice=o;officeSearch.value=officeLabel(o);officeResults.classList.remove('show');officeSelectedBox.textContent='Selectat: '+officeLabel(o)+(officeSub(o)?' · '+officeSub(o):'');officeSelectedBox.classList.add('show');officeStatus.textContent='Punct FAN selectat.';});
       officeResults.appendChild(b);
     });
-    officeResults.classList.add('show');
+    if(officeState.rows.length){
+      officeResults.classList.add('show');
+      officeStatus.textContent=officeState.done ? officeState.rows.length+' puncte găsite. Selectează unul.' : officeState.rows.length+' puncte încărcate. Derulează lista pentru mai multe.';
+    }
   }
+
+  function fetchOfficePage(term,offset,append,seq){
+    if(officeState.loading || officeState.done || term!==officeState.term) return Promise.resolve();
+    officeState.loading=true;
+    if(!append) officeStatus.textContent='Se caută în lista FAN Courier...';
+
+    if(officeAbortController) officeAbortController.abort();
+    officeAbortController = typeof AbortController!=='undefined' ? new AbortController() : null;
+    var url=officeApiBase+'?term='+encodeURIComponent(term)+'&offset='+offset+'&limit='+OFFICE_PAGE_SIZE;
+    var opts={headers:{'Accept':'application/json'}};
+    if(officeAbortController) opts.signal=officeAbortController.signal;
+
+    return fetch(url,opts).then(function(r){
+      if(!r.ok) throw new Error('office api');
+      return r.json();
+    }).then(function(json){
+      if(seq!==officeSearchSeq || term!==officeState.term) return;
+      var rows=officeRows(json);
+      var before=officeState.rows.length;
+      addOfficeRows(rows);
+      var added=officeState.rows.slice(before);
+      var next=nextOffset(json);
+      officeState.next=(next!==null && isFinite(next) && next>offset) ? next : null;
+      officeState.done=!rows.length || officeState.next===null;
+      officeState.loading=false;
+      officeCache[term]={rows:officeState.rows.slice(),next:officeState.next,done:officeState.done,ts:Date.now()};
+      renderOffices(added,append);
+    }).catch(function(err){
+      officeState.loading=false;
+      if(err && err.name==='AbortError') return;
+      if(seq!==officeSearchSeq) return;
+      if(!append){officeResults.classList.remove('show');officeResults.innerHTML='';}
+      officeStatus.textContent='Lista FAN Courier nu a putut fi încărcată. Încearcă din nou sau alege livrarea la adresă.';
+    });
+  }
+
+  function startOfficeSearch(term){
+    officeSearchSeq++;
+    var seq=officeSearchSeq;
+    if(officeAbortController) officeAbortController.abort();
+    resetOfficeState(term);
+
+    var cached=officeCache[term];
+    if(cached && Date.now()-cached.ts<5*60*1000){
+      officeState.rows=cached.rows.slice();
+      officeState.next=cached.next;
+      officeState.done=cached.done;
+      officeState.seen={};
+      officeState.rows.forEach(function(o){officeState.seen[officeKey(o)]=1;});
+      renderOffices(officeState.rows,false);
+      return;
+    }
+    fetchOfficePage(term,0,false,seq);
+  }
+
   officeSearch.addEventListener('input',function(){
     selectedOffice=null;officeSelectedBox.classList.remove('show');officeSelectedBox.textContent='';clearTimeout(searchTimer);
     var term=this.value.trim();
-    if(term.length<2){officeResults.classList.remove('show');officeResults.innerHTML='';officeStatus.textContent='Introduceți cel puțin 2 caractere pentru a căuta.';return;}
+    if(term.length<2){
+      officeSearchSeq++;
+      if(officeAbortController) officeAbortController.abort();
+      resetOfficeState('');
+      officeResults.classList.remove('show');officeResults.innerHTML='';officeStatus.textContent='Introduceți cel puțin 2 caractere pentru a căuta.';return;
+    }
     if(!ensureOfficeProxyConfigured()){officeResults.classList.remove('show');officeStatus.textContent='Căutarea FAN Courier este temporar indisponibilă. Alege livrarea la adresă.';return;}
     officeStatus.textContent='Se caută în lista FAN Courier...';
-    searchTimer=setTimeout(function(){fetchAllOfficeMatches(term).then(renderOffices).catch(function(){officeResults.classList.remove('show');officeStatus.textContent='Lista FAN Courier nu a putut fi încărcată. Încearcă din nou sau alege livrarea la adresă.';});},300);
+    searchTimer=setTimeout(function(){startOfficeSearch(term);},180);
+  });
+
+  officeResults.addEventListener('scroll',function(){
+    if(!officeState.term || officeState.loading || officeState.done || officeState.next===null) return;
+    if(officeResults.scrollTop + officeResults.clientHeight >= officeResults.scrollHeight - 80){
+      fetchOfficePage(officeState.term,officeState.next,true,officeSearchSeq);
+    }
   });
 
   checkoutForm.addEventListener('submit',function(e){
