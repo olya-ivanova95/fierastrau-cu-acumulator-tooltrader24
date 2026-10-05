@@ -37,8 +37,8 @@ fbq('track','PageView');
   --line:#E7DCC8;
 }
 *{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-behavior:smooth}
-body{font-family:'Source Sans 3',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;color:var(--bark);background:var(--white);line-height:1.55;font-size:17px;padding-bottom:env(safe-area-inset-bottom,0px)}
+html{-webkit-text-size-adjust:100%;text-size-adjust:100%;scroll-behavior:smooth;max-width:100%;overflow-x:hidden}
+body{font-family:'Source Sans 3',system-ui,-apple-system,'Segoe UI',Arial,sans-serif;color:var(--bark);background:var(--white);line-height:1.55;font-size:17px;padding-bottom:env(safe-area-inset-bottom,0px);max-width:100%;overflow-x:hidden}
 img{display:block;width:100%;height:auto}
 h1,h2,h3,.osw{font-family:'Oswald','Arial Narrow',Arial,sans-serif;font-weight:700;line-height:1.08;letter-spacing:.2px}
 .wrap{max-width:1080px;margin:0 auto;padding:0 18px}
@@ -84,27 +84,68 @@ a{color:inherit}
 .stock-dot{width:10px;height:10px;border-radius:50%;background:var(--red);box-shadow:0 0 0 0 rgba(217,34,26,.5);animation:pulse 1.8s infinite}
 @keyframes pulse{70%{box-shadow:0 0 0 9px rgba(217,34,26,0)}100%{box-shadow:0 0 0 0 rgba(217,34,26,0)}}
 
-/* ---------- Order form ---------- */
-.order{background:var(--white);border:2px solid var(--bark);border-radius:14px;padding:20px 18px 16px;box-shadow:6px 6px 0 var(--pine-deep)}
-.order h3{font-size:22px;text-transform:uppercase;margin-bottom:4px}
-.order p.o-sub{font-size:15px;color:var(--bark-soft);margin-bottom:14px}
-.field{display:flex;align-items:center;border:2px solid var(--line);border-radius:10px;background:var(--sawdust);transition:border-color .15s}
-.field:focus-within{border-color:var(--blue)}
-.field svg{width:22px;height:22px;margin:0 4px 0 14px;flex:0 0 auto;color:var(--bark-soft)}
-.field input{flex:1;min-width:0;border:0;background:transparent;font:600 19px 'Source Sans 3',sans-serif;color:var(--bark);padding:15px 12px;-webkit-appearance:none;appearance:none;border-radius:0;outline:none}
-.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;border:0;cursor:pointer;background:var(--red);color:#fff;font-family:'Oswald',sans-serif;font-weight:700;font-size:21px;text-transform:uppercase;letter-spacing:.4px;padding:16px 14px;border-radius:10px;margin-top:12px;box-shadow:0 5px 0 var(--red-deep);transition:transform .08s,box-shadow .08s;-webkit-appearance:none}
+/* ---------- ToolTrader brand / CTA / checkout ---------- */
+.brand-header{background:#fff;border-bottom:1px solid var(--line);padding:10px 0}
+.brand-header-in{display:flex;align-items:center;min-height:62px}
+.brand-logo{display:inline-flex;align-items:center;text-decoration:none}
+.brand-logo img{display:block;width:220px;max-width:68vw;height:auto;object-fit:contain}
+.hero-order{background:#fff;border:2px solid var(--bark);border-radius:14px;padding:16px;text-align:center;box-shadow:4px 4px 0 var(--pine-deep)}
+.hero-order .btn{display:inline-flex;margin:0 auto;width:auto;min-width:0;max-width:100%;padding:12px 18px;font-size:17px;line-height:1.15;white-space:nowrap}
+.hero-order p{margin-top:12px;font-size:14px;color:var(--bark-soft);font-weight:600;text-align:center}
+
+.btn{display:flex;align-items:center;justify-content:center;gap:10px;width:100%;border:0;cursor:pointer;background:var(--red);color:#fff;font-family:'Oswald',sans-serif;font-weight:700;font-size:21px;text-transform:uppercase;letter-spacing:.4px;padding:16px 14px;border-radius:10px;margin-top:12px;box-shadow:0 5px 0 var(--red-deep);transition:transform .08s,box-shadow .08s;-webkit-appearance:none;text-decoration:none}
+.btn svg{width:22px;height:22px;flex:0 0 22px}
 .btn:active{transform:translateY(3px);box-shadow:0 2px 0 var(--red-deep)}
-.btn svg{width:22px;height:22px}
 .btn[disabled]{opacity:.7;cursor:wait}
-.o-note{display:flex;flex-wrap:wrap;justify-content:center;gap:6px 14px;margin-top:12px;font-size:14px;color:var(--bark-soft);font-weight:600}
-.o-note span{display:inline-flex;align-items:center;gap:5px}
-.o-note svg{width:15px;height:15px;color:var(--blue)}
-.err{display:none;color:var(--red-deep);font-size:14px;font-weight:600;margin-top:8px}
-.ok{display:none;text-align:center;padding:10px 4px}
-.ok svg{width:54px;height:54px;color:#2E8B3E;margin:0 auto 8px}
-.ok h3{color:#2E8B3E}
-.call{text-align:center;margin-top:12px;font-size:15px;color:var(--bark-soft)}
-.call a{font-weight:700;color:var(--blue-deep);text-decoration:none}
+
+.checkout-box{background:#fff;border:2px solid var(--bark);border-radius:14px;padding:22px 20px;box-shadow:6px 6px 0 var(--pine-deep);scroll-margin-top:18px}
+.checkout-title{font-size:25px;text-transform:uppercase;margin-bottom:4px}
+.checkout-sub{font-size:15px;color:var(--bark-soft);margin-bottom:16px}
+.checkout-section{border-top:1px solid var(--line);padding-top:18px;margin-top:18px}
+.checkout-section:first-of-type{border-top:0;padding-top:0;margin-top:0}
+.checkout-section h3{font-size:20px;text-transform:none;margin-bottom:12px}
+.checkout-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.checkout-field{display:block}
+.checkout-field.full{grid-column:1/-1}
+.checkout-field>span{display:block;font-weight:700;margin-bottom:6px}
+.checkout-field input,.checkout-field textarea,.office-search-input{width:100%;min-width:0;-webkit-appearance:none;appearance:none;font:inherit;font-size:16px;padding:13px 12px;border:1.5px solid var(--line);border-radius:9px;background:#fff;color:var(--bark);outline:none}
+.checkout-field input:focus,.checkout-field textarea:focus,.office-search-input:focus{border-color:var(--blue);box-shadow:0 0 0 3px rgba(21,146,196,.12)}
+.checkout-field textarea{min-height:96px;resize:vertical}
+.helper{display:block;color:#8A7C70;font-size:13px;margin-top:5px}
+.payment-row{display:flex;align-items:center;gap:9px;font-weight:600;padding:12px;background:var(--sawdust);border:1px solid var(--line);border-radius:9px}
+.payment-dot{width:16px;height:16px;border:5px solid var(--blue);border-radius:50%;background:#fff;flex:0 0 auto}
+.delivery-options{display:grid;gap:10px}
+.delivery-card{display:block;border:1.5px solid var(--line);border-radius:10px;padding:0;background:#fff;overflow:hidden}
+.delivery-card.active{border-color:var(--blue);background:#EFF8FC}
+.delivery-head{display:grid;grid-template-columns:auto 1fr auto;gap:10px;align-items:center;padding:13px 14px;cursor:pointer;font-weight:700}
+.delivery-head input{width:18px;height:18px;accent-color:var(--blue)}
+.delivery-price{white-space:nowrap;font-size:15px}
+.delivery-body{padding:0 14px 14px}
+.delivery-body[hidden]{display:none!important}
+.office-search{position:relative}
+.office-results{max-height:260px;overflow:auto;border:1px solid var(--line);border-radius:9px;background:#fff;margin-top:6px;display:none;box-shadow:0 8px 24px rgba(58,38,24,.12)}
+.office-results.show{display:block}
+.office-result{display:block;width:100%;text-align:left;border:0;border-bottom:1px solid var(--line);background:#fff;padding:11px 12px;cursor:pointer;font:inherit;color:var(--bark)}
+.office-result:last-child{border-bottom:0}
+.office-result:hover,.office-result:focus{background:#FFF7D8;outline:none}
+.office-result b{display:block;font-size:15px}
+.office-result small{display:block;color:var(--bark-soft);font-size:13px;margin-top:2px}
+.office-selected{display:none;margin-top:8px;padding:10px 12px;border-radius:9px;background:#EAF5FB;border:1px solid #A9D7EA;font-size:14px}
+.office-selected.show{display:block}
+.office-status{font-size:13px;color:var(--bark-soft);margin-top:6px;min-height:1.3em}
+.terms-row{display:flex;align-items:flex-start;gap:9px;font-size:14px;margin-top:16px}
+.terms-row input{width:17px;height:17px;accent-color:var(--blue);margin-top:2px;flex:0 0 auto}
+.terms-row a{color:var(--blue-deep);font-weight:700}
+.order-summary{border:1px solid var(--line);border-radius:10px;overflow:hidden;background:#fff;margin-top:16px}
+.summary-title{font-family:'Oswald',sans-serif;font-weight:700;font-size:20px;padding:12px 14px;background:var(--sawdust)}
+.summary-row{display:flex;justify-content:space-between;gap:14px;padding:10px 14px;border-top:1px solid var(--line);font-size:15px}
+.summary-row.total{font-weight:700;font-size:18px;background:#FFF4C6}
+.summary-row span:last-child{text-align:right;white-space:nowrap}
+.checkout-error{display:none;color:var(--red-deep);font-size:14px;font-weight:700;margin-top:10px}
+.checkout-success{display:none;text-align:left;background:#EAF7EC;border:2px solid #4D955A;border-radius:10px;padding:18px;margin-top:12px}
+.checkout-success h3{color:#2E713B;margin-bottom:5px}
+.checkout-cod{display:flex;align-items:center;justify-content:center;gap:7px;color:var(--bark-soft);font-size:14px;margin-top:11px;text-align:center}
+.checkout-cod svg{width:18px;height:18px;color:#2E8B3E}
 
 /* ---------- Trust bar ---------- */
 .trust{background:var(--bark);color:var(--sawdust);padding:22px 0}
@@ -192,16 +233,6 @@ a{color:inherit}
 .final-img img{border-radius:14px;aspect-ratio:1/1;object-fit:cover}
 .final h2{margin-bottom:8px}
 
-/* ---------- Sticky bar ---------- */
-.sticky{position:fixed;left:0;right:0;bottom:0;z-index:50;background:var(--white);border-top:3px solid var(--pine-deep);box-shadow:0 -8px 24px rgba(58,38,24,.16);padding:10px 14px calc(10px + env(safe-area-inset-bottom,0px));transform:translateY(110%);transition:transform .25s ease}
-.sticky.show{transform:translateY(0)}
-.sticky-in{max-width:1080px;margin:0 auto;display:flex;align-items:center;gap:12px}
-.sticky-name{flex:1;min-width:0;font-weight:700;font-size:15px;line-height:1.2;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.sticky-price{text-align:right;line-height:1.1}
-.sticky-price s{font-size:13px;color:var(--bark-soft)}
-.sticky-price b{display:block;font-family:'Oswald',sans-serif;font-size:24px;color:var(--red-deep)}
-.sticky .btn{text-decoration:none;width:auto;margin:0;padding:12px 18px;font-size:18px;box-shadow:0 4px 0 var(--red-deep);white-space:nowrap}
-
 /* ---------- Responsive ---------- */
 @media (max-width:900px){
   .hero-grid,.kit-grid,.final-grid{grid-template-columns:1fr;gap:24px}
@@ -224,19 +255,38 @@ a{color:inherit}
   .timer b{font-size:22px}
   .deal{gap:12px}
   .specs th,.specs td{padding:10px 12px;font-size:15px}
-  .sticky-name{display:none}
-  .sticky .btn{flex:1}
-  .sticky-price{text-align:left}
 }
 @media (max-width:370px){
   .deal{flex-direction:column;align-items:flex-start}
 }
+
+@media (max-width:700px){
+  .checkout-grid{grid-template-columns:1fr}
+  .checkout-field.full{grid-column:auto}
+  .checkout-box{padding:18px 16px}
+  .delivery-head{grid-template-columns:auto 1fr;align-items:start}
+  .delivery-price{grid-column:2}
+  .brand-logo img{width:190px;max-width:66vw}
+  .brand-header{padding:7px 0}
+  .brand-header-in{min-height:54px}
+  .hero-order{padding:14px 12px}
+  .hero-order .btn{font-size:16px;padding:11px 15px;gap:8px}
+  .hero-order .btn svg{width:19px;height:19px;flex-basis:19px}
+}
+
 @media (prefers-reduced-motion:reduce){
   *{animation:none!important;transition:none!important;scroll-behavior:auto!important}
 }
 </style>
 </head>
 <body>
+<header class="brand-header">
+  <div class="wrap brand-header-in">
+    <a class="brand-logo" href="https://www.tooltrader24.com/" aria-label="ToolTrader24 - pagina principală">
+      <img src="data:image/png;base64,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1aRKfnOw0SavPXheV1/h2Wsi0ksQJW8Eg6FA1mIxm19++eWXX34Zt32xHePWPT09PT093d3d3d3d+/e///7+/Vic5fPPP//8888Rkj755JNPPvnke++999577z322GOPPfbY4cNHjhw+jHF9NVoujo7jMdY0RaCcnp6enp5+6NChQ4cOYfvdd9999913o94Lwmvss2LF44+vWFFeXl5eXo7klv7+/v7+fiVtw/FxOTF27NixY8e++eabb7755vjx48ePHx9sSUQUerCsj96t0M7evr19e/u0f10McGgz1h48lEycDR4WA1I+QZzIiBgw3QKj1DabzWazffvb3/72t7/917/+9a9//SsmWWIfBLVPPfXUU089lZmZlZWZuWTJkiVLltjtdrvdjslniYmJiYmJmzdv3rx58zvvvPPOO++cOnXq1KlTW7du3bp1K44T2BQRcRQfiSgTJkyYMGEC8lyxZeHChQsXLsR9g4sXL168eBH7I82mubm5ubm5vr6+vr4elyjz58+fP39+dHR0dHR0WlpaWloa6mCgPrH7pYI3LUSvcX6Q7+6e2MNQngIlTENJnS5U9Lpg0Nfewr2Fe8PospCIdKZ3PUpZDo467hgvR9iK8oUIMVERJT4+Pj4+3pvzKQad2dnZ2dnZSAhxOgcGnE7UOsDFgGtYvrZffBbGzru6urq6uhBkx8TExMTEuLdQiczMzMzMTFyoiC1HT8VWIVXGvc3YE3cAgj9wZx13vfvnD/Xqdge/t95666233tLybKPyut791oc29fLVq+NuRKX2UnupXctPOFEwCLrwSC9I21i6dOnSpUsRxCM33Wq1Wq1WTOvEPxbis9wnng5NabVYLBZcBsydO3fu3LnV1a++Wl0dFxcXFxeHsXyk3ASq/Xj1jo6Ojo6OK1euXLlyBa+F+wD4UQnsGUMwh3sR999///333/+HP/zhD3/4w8CA0zkwgI8XWoVJvXgWgng8RvY8VrtECg224xyGxoqzpK9wS5IRNXc1dzV3afNaSBcMtzsbIvXWeSUiEjFwvwUSSB599NFHH320qampqakJ28UwFFvwGNuxRQzrxTQYjN8j/aaioqKiomLkyJEjR47EpUKgWv7ll19++eWXSMhBVj3ahosHtA2XE/6l6Ii9w3HE84ALhvz8/Pz8/OnTp0+fPv0f//jHP/7xD/fzhnAcyTnY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" alt="ToolTrader24">
+    </a>
+  </div>
+</header>
 
 <!-- SVG sprite -->
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
@@ -266,7 +316,7 @@ a{color:inherit}
   </defs>
 </svg>
 
-<div class="season">Sezonul lemnelor de foc a început &mdash; <b>ofertă -54% doar azi</b></div>
+<div class="season">Sezonul lemnelor de foc a început &mdash; <b>ofertă -54% în limita stocului</b></div>
 
 <!-- ================= HERO ================= -->
 <section class="hero" id="top">
@@ -303,7 +353,7 @@ a{color:inherit}
           </div>
         </div>
         <div class="deal-side">
-          <div class="timer-lbl">Prețul redus expiră în:</div>
+          <div class="timer-lbl">Timp rămas în sesiunea promo:</div>
           <div class="timer" role="timer" aria-live="off">
             <div><b class="t-h">04</b><i>ore</i></div>
             <div><b class="t-m">00</b><i>min</i></div>
@@ -313,27 +363,9 @@ a{color:inherit}
         </div>
       </div>
 
-      <div class="order" id="form1">
-        <form class="lead-form" novalidate>
-          <h3>Comandă acum cu plata la livrare</h3>
-          <p class="o-sub">Lasă numărul de telefon. Te sunăm noi pentru adresă și confirmare.</p>
-          <label class="field" for="phone1">
-            <svg><use href="#i-phone"/></svg>
-            <input id="phone1" type="tel" name="phone" inputmode="tel" autocomplete="tel" placeholder="07XX XXX XXX" aria-label="Număr de telefon" required>
-          </label>
-          <div class="err" role="alert">Introdu un număr de telefon valid, de exemplu 0722 123 456.</div>
-          <button class="btn" type="submit"><svg><use href="#i-cart"/></svg>Comandă la 299 lei</button>
-          <div class="o-note">
-            <span><svg><use href="#i-cash"/></svg>Plata ramburs</span>
-            <span><svg><use href="#i-lock"/></svg>Fără plată în avans</span>
-            <span><svg><use href="#i-truck"/></svg>Livrare în 2&ndash;3 zile</span>
-          </div>
-        </form>
-        <div class="ok" role="status">
-          <svg><use href="#i-check"/></svg>
-          <h3>Comanda a fost trimisă</h3>
-          <p>Te sunăm în cel mai scurt timp pentru confirmare. Plătești doar când primești coletul.</p>
-        </div>
+      <div class="hero-order" id="hero-order">
+        <a class="btn" href="#checkout"><svg><use href="#i-cart"/></svg>Comandă acum la 299 lei</a>
+        <p>Plata la livrare · alegi birou/locker sau livrare la adresă în formularul de comandă.</p>
       </div>
     </div>
   </div>
@@ -484,7 +516,7 @@ a{color:inherit}
   <div class="wrap narrow">
     <h2>Întrebări frecvente</h2>
     <div class="faq-item"><button class="faq-q" aria-expanded="false">Cum plătesc?<svg><use href="#i-plus"/></svg></button><div class="faq-a"><p>Plătești ramburs, direct curierului, când primești coletul. Nu plătești nimic în avans și nu ai nevoie de card.</p></div></div>
-    <div class="faq-item"><button class="faq-q" aria-expanded="false">Cât durează livrarea?<svg><use href="#i-plus"/></svg></button><div class="faq-a"><p>De obicei 2&ndash;3 zile lucrătoare. După ce lași numărul, te sunăm pentru adresă și confirmare, apoi coletul pleacă.</p></div></div>
+    <div class="faq-item"><button class="faq-q" aria-expanded="false">Cât durează livrarea?<svg><use href="#i-plus"/></svg></button><div class="faq-a"><p>De obicei 2&ndash;3 zile lucrătoare. Completezi datele de livrare direct în formular, alegi birou/locker FAN Courier sau livrare la adresă, apoi comanda este procesată.</p></div></div>
     <div class="faq-item"><button class="faq-q" aria-expanded="false">Ce poate tăia?<svg><use href="#i-plus"/></svg></button><div class="faq-a"><p>Lemne de foc, crengi, pomi mici, pari și scânduri. Cu bara de 30 cm e potrivit pentru lucrările de la casă, grădină, livadă și vie.</p></div></div>
     <div class="faq-item"><button class="faq-q" aria-expanded="false">Cât ține o baterie?<svg><use href="#i-plus"/></svg></button><div class="faq-a"><p>Depinde de grosimea și duritatea lemnului. Pentru că ai două baterii de 10Ah în set, poți lucra cu una în timp ce cealaltă se încarcă, fără pauze lungi.</p></div></div>
     <div class="faq-item"><button class="faq-q" aria-expanded="false">Trebuie să pun ulei?<svg><use href="#i-plus"/></svg></button><div class="faq-a"><p>Da, ulei de lanț în rezervorul dedicat. Mai departe, ferăstrăul unge lanțul automat în timp ce tai, iar debitul se poate regla.</p></div></div>
@@ -499,41 +531,92 @@ a{color:inherit}
     <div>
       <h2>Pregătește lemnele pentru iarnă</h2>
       <p class="lead" style="margin-bottom:20px">299 lei în loc de 649 lei, cu două baterii, încărcător și lanț de rezervă incluse. Oferta se oprește când se termină stocul.</p>
-      <div class="order" id="form2">
-        <form class="lead-form" novalidate>
-          <h3>Vreau ferăstrăul la 299 lei</h3>
-          <p class="o-sub">Lasă numărul de telefon. Plătești doar la livrare.</p>
-          <label class="field" for="phone2">
-            <svg><use href="#i-phone"/></svg>
-            <input id="phone2" type="tel" name="phone" inputmode="tel" autocomplete="tel" placeholder="07XX XXX XXX" aria-label="Număr de telefon" required>
-          </label>
-          <div class="err" role="alert">Introdu un număr de telefon valid, de exemplu 0722 123 456.</div>
-          <button class="btn" type="submit"><svg><use href="#i-cart"/></svg>Comandă la 299 lei</button>
-          <div class="o-note">
-            <span><svg><use href="#i-cash"/></svg>Plata ramburs</span>
-            <span><svg><use href="#i-lock"/></svg>Fără plată în avans</span>
-            <span><svg><use href="#i-truck"/></svg>Livrare în 2&ndash;3 zile</span>
+      <div class="checkout-box" id="checkout">
+        <form class="checkout-form" id="tooltrader-checkout" novalidate>
+          <h3 class="checkout-title">Comanda</h3>
+          <p class="checkout-sub">Completează datele de mai jos. Plata se face la primire.</p>
+
+          <div class="checkout-section">
+            <h3>Datele dumneavoastră</h3>
+            <div class="checkout-grid">
+              <label class="checkout-field"><span>Prenume *</span><input type="text" name="Prenume" autocomplete="given-name" required></label>
+              <label class="checkout-field"><span>Nume *</span><input type="text" name="Nume" autocomplete="family-name" required></label>
+              <label class="checkout-field"><span>E-Mail *</span><input type="email" name="E-Mail" autocomplete="email" inputmode="email" required></label>
+              <label class="checkout-field"><span>Telefon *</span><input type="tel" name="Telefon" autocomplete="tel" inputmode="tel" placeholder="07xx xxx xxx" required></label>
+            </div>
           </div>
+
+          <div class="checkout-section">
+            <h3>Metoda de plata (plata la primire)</h3>
+            <div class="payment-row"><span class="payment-dot" aria-hidden="true"></span>Plata la livrare</div>
+          </div>
+
+          <div class="checkout-section">
+            <h3>Adresa</h3>
+            <div class="delivery-options">
+              <div class="delivery-card active" data-delivery-card="office">
+                <label class="delivery-head">
+                  <input type="radio" name="delivery_method" value="FAN Courier - livrare la oficiu / locker" checked>
+                  <span>FAN Courier - livrare la oficiu / locker</span>
+                  <span class="delivery-price">25.00 RON</span>
+                </label>
+                <div class="delivery-body" data-delivery-body="office">
+                  <div class="office-search">
+                    <label class="checkout-field full"><span>&lt; Selectați birou/locker &gt;</span><input class="office-search-input" id="office-search" type="text" autocomplete="off" placeholder="Scrie orașul sau numele punctului FAN..." aria-controls="office-results"></label>
+                    <div class="office-status" id="office-status">Introduceți cel puțin 2 caractere pentru a căuta.</div>
+                    <div class="office-results" id="office-results" role="listbox"></div>
+                    <div class="office-selected" id="office-selected"></div>
+                  </div>
+                </div>
+              </div>
+
+              <div class="delivery-card" data-delivery-card="address">
+                <label class="delivery-head">
+                  <input type="radio" name="delivery_method" value="FAN Courier - livrare la adresă">
+                  <span>FAN Courier - livrare la adresă</span>
+                  <span class="delivery-price">25.00 RON</span>
+                </label>
+                <div class="delivery-body" data-delivery-body="address" hidden>
+                  <div class="checkout-grid">
+                    <label class="checkout-field full"><span>Oraș</span><input type="text" name="Oraș" placeholder="Începeți să tastați orașul..." autocomplete="address-level2" disabled><small class="helper">Introduceți cel puțin 2 caractere</small></label>
+                    <label class="checkout-field full"><span>Cod Poștal</span><input type="text" name="Cod Poștal" placeholder="Căutare după cod poștal..." inputmode="numeric" autocomplete="postal-code" disabled><small class="helper">Introduceți cel puțin 2 caractere</small></label>
+                    <label class="checkout-field full"><span>Adresă - stradă și număr</span><input type="text" name="Adresă - stradă și număr" placeholder="Începeți să tastați adresa..." autocomplete="street-address" disabled><small class="helper">Introduceți cel puțin 2 caractere</small></label>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <div class="checkout-section">
+            <h3>Adăugați explicații la comandă (dacă este necesar)</h3>
+            <label class="checkout-field full"><textarea name="Comentarii" placeholder="Adaugă comentarii despre comanda ta"></textarea></label>
+          </div>
+
+          <div class="order-summary" aria-label="Sumarul comenzii">
+            <div class="summary-title">Coș</div>
+            <div class="summary-row"><span>Ferăstrău cu acumulator 36V 10.0Ah × 1</span><span>299.00 lei</span></div>
+            <div class="summary-row"><span>Subtotal</span><span>299.00 lei</span></div>
+            <div class="summary-row"><span>Valoarea taxei fixe de livrare</span><span>25.00 lei</span></div>
+            <div class="summary-row total"><span>Total</span><span>324.00 lei</span></div>
+          </div>
+
+          <label class="terms-row">
+            <input type="checkbox" name="terms_accepted" required>
+            <span>Am citit şi sunt de acord cu <a href="https://www.tooltrader24.com/index.php?route=information/information/agree&amp;information_id=5" target="_blank" rel="noopener">TERMENI SI CONDITII DE UTILIZARE</a></span>
+          </label>
+
+          <p class="checkout-error" id="checkout-error" role="alert"></p>
+          <button type="submit" class="btn">TRIMITERE – 324 LEI</button>
+          <p class="checkout-cod"><svg><use href="#i-check"/></svg>Fără plată în avans. Plătești la livrare.</p>
         </form>
-        <div class="ok" role="status">
-          <svg><use href="#i-check"/></svg>
-          <h3>Comanda a fost trimisă</h3>
-          <p>Te sunăm în cel mai scurt timp pentru confirmare. Plătești doar când primești coletul.</p>
+        <div class="checkout-success" id="checkout-success" role="status">
+          <h3>Comanda ta a fost primită</h3>
+          <p>Mulțumim. Datele comenzii au fost trimise pentru procesare.</p>
         </div>
       </div>
-      <p class="call">Preferi să vorbești direct? Sună la <a class="tel-link" href="tel:0371781776">0371 781 776</a></p>
     </div>
   </div>
 </section>
-
-<!-- ================= STICKY ================= -->
-<div class="sticky" id="sticky" aria-hidden="true">
-  <div class="sticky-in">
-    <div class="sticky-name">Ferăstrău KRONBERG 36V 10.0Ah + 2 baterii</div>
-    <div class="sticky-price"><s>649 lei</s><b>299 lei</b></div>
-    <a class="btn" href="#final" id="stickyBtn" tabindex="-1"><svg><use href="#i-cart"/></svg>Comandă</a>
-  </div>
-</div>
 
 <script>
 (function(){
@@ -549,93 +632,171 @@ a{color:inherit}
   }
   tick(); setInterval(tick,1000);
 
-  /* ---- Forms: Web3Forms + Meta Pixel Purchase ---- */
+  /* ---- ToolTrader24 checkout: FAN delivery + Web3Forms + Meta Purchase ---- */
   var ACCESS_KEY = '8a8a2d01-02ee-4ef9-ab74-0da465848dd0';
-  var PRODUCT = 'Ferastrau cu acumulator KRONBERG 36V 10.0Ah, bara 30cm, 2 baterii';
-  var PRICE = 299;
-  var purchased = false;
+  var PRODUCT = 'Ferăstrău cu acumulator KRONBERG 36V 10.0Ah, bară 30 cm, 2 baterii';
+  var PRICE = 299, DELIVERY_FEE = 25, TOTAL = 324;
+  var checkoutForm = document.getElementById('tooltrader-checkout');
+  var checkoutError = document.getElementById('checkout-error');
+  var checkoutSuccess = document.getElementById('checkout-success');
+  var submitBtn = checkoutForm.querySelector('button[type="submit"]');
+  var deliveryRadios = checkoutForm.querySelectorAll('input[name="delivery_method"]');
+  var officeSearch = document.getElementById('office-search');
+  var officeResults = document.getElementById('office-results');
+  var officeStatus = document.getElementById('office-status');
+  var officeSelectedBox = document.getElementById('office-selected');
+  var selectedOffice = null, searchTimer = null, isSubmitting = false, purchased = false;
+  var officeApiBase = 'https://tooltrader24-fan-proxy.vercel.app/api/offices';
 
-  document.querySelectorAll('.lead-form').forEach(function(form){
-    var input = form.querySelector('input[type=tel]');
-    var err = form.querySelector('.err');
-    var btn = form.querySelector('button[type=submit]');
-    var box = form.parentNode;
-    var okBox = box.querySelector('.ok');
-    input.addEventListener('input', function(){ err.style.display='none'; });
+  function validPhone(v){
+    var n=String(v||'').replace(/[\s\-\.\(\)]/g,'');
+    return /^(\+?40|0040|0)?7\d{8}$/.test(n) || /^(\+?40|0040|0)[23]\d{8}$/.test(n);
+  }
+  function validEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v||'').trim()); }
+  function val(name){ var el=checkoutForm.elements[name]; return el ? String(el.value||'').trim() : ''; }
+  function officeRows(json){
+    if(Array.isArray(json)) return json;
+    var keys=['offices','items','results','data'];
+    for(var i=0;i<keys.length;i++){
+      var v=json && json[keys[i]];
+      if(Array.isArray(v)) return v;
+      if(v && typeof v==='object') for(var j=0;j<keys.length;j++) if(Array.isArray(v[keys[j]])) return v[keys[j]];
+    }
+    return [];
+  }
+  function nextOffset(json){
+    if(!json || typeof json!=='object') return null;
+    var n=json.next_offset;
+    if(n===undefined && json.meta) n=json.meta.next_offset;
+    if(n===undefined && json.pagination) n=json.pagination.next_offset;
+    if(n===undefined && json.data && !Array.isArray(json.data) && typeof json.data==='object') n=json.data.next_offset;
+    return (n===null || n===undefined || n==='') ? null : Number(n);
+  }
+  function officeLabel(o){ return o.display_label || o.label || [o.name || o.office_name || 'Punct FAN',o.address,o.city || o.locality].filter(Boolean).join(' — '); }
+  function officeSub(o){ return [o.address,o.city || o.locality,o.postcode || o.postal_code].filter(Boolean).join(' · '); }
+  function setDeliveryMode(mode){
+    checkoutForm.querySelectorAll('[data-delivery-card]').forEach(function(card){card.classList.toggle('active',card.getAttribute('data-delivery-card')===mode);});
+    var officeBody=checkoutForm.querySelector('[data-delivery-body="office"]');
+    var addressBody=checkoutForm.querySelector('[data-delivery-body="address"]');
+    var addressInputs=addressBody.querySelectorAll('input');
+    if(mode==='office'){
+      officeBody.hidden=false; addressBody.hidden=true; officeSearch.disabled=false;
+      addressInputs.forEach(function(i){i.disabled=true;i.required=false;});
+    }else{
+      officeBody.hidden=true; addressBody.hidden=false; officeSearch.disabled=true;
+      addressInputs.forEach(function(i){i.disabled=false;i.required=true;});
+      selectedOffice=null; officeSelectedBox.classList.remove('show'); officeSelectedBox.textContent='';
+      officeResults.classList.remove('show'); officeResults.innerHTML='';
+    }
+  }
+  deliveryRadios.forEach(function(r){r.addEventListener('change',function(){setDeliveryMode(this.value.indexOf('oficiu')>-1?'office':'address');});});
+  setDeliveryMode('office');
 
-    form.addEventListener('submit', function(e){
-      e.preventDefault();
-      var raw = input.value.trim();
-      var digits = raw.replace(/\D/g,'');
-      if(digits.indexOf('40')===0 && digits.length===11){ digits = '0'+digits.slice(2); }
-      if(!/^0\d{9}$/.test(digits)){ err.style.display='block'; input.focus(); return; }
+  function ensureOfficeProxyConfigured(){
+    if(!officeApiBase || officeApiBase.indexOf('__TOOLTRADER24_FAN_PROXY_URL__')!==-1){
+      return false;
+    }
+    return true;
+  }
 
-      var label = btn.innerHTML;
-      btn.disabled = true; btn.textContent = 'Se trimite...';
-
-      fetch('https://api.web3forms.com/submit', {
-        method:'POST',
-        headers:{'Content-Type':'application/json','Accept':'application/json'},
-        body: JSON.stringify({
-          access_key: ACCESS_KEY,
-          subject: 'Comanda noua: Ferastrau KRONBERG 36V 10.0Ah - 299 lei',
-          from_name: 'Landing ToolTrader24 - Ferastrau KRONBERG',
-          produs: PRODUCT,
-          pret: PRICE + ' lei (plata ramburs)',
-          telefon: raw,
-          formular: box.id === 'form1' ? 'Formular sus (hero)' : 'Formular jos',
-          pagina: location.href
-        })
-      })
-      .then(function(r){ return r.json(); })
-      .then(function(res){
-        if(res && res.success){
-          form.style.display = 'none';
-          okBox.style.display = 'block';
-          if(!purchased && typeof fbq === 'function'){
-            fbq('track','Purchase',{value:PRICE,currency:'RON',content_name:PRODUCT,content_type:'product'});
-            purchased = true;
-          }
-        } else { throw new Error('fail'); }
-      })
-      .catch(function(){
-        btn.disabled = false; btn.innerHTML = label;
-        err.textContent = 'Comanda nu a putut fi trimisă. Verifică internetul și încearcă din nou sau sună la 0371 781 776.';
-        err.style.display = 'block';
+  function fetchAllOfficeMatches(term){
+    var all=[],seen={},pages=0;
+    function page(offset){
+      pages++;
+      var url=officeApiBase+'?term='+encodeURIComponent(term)+'&offset='+offset+'&limit=200';
+      return fetch(url,{headers:{'Accept':'application/json'}}).then(function(r){if(!r.ok) throw new Error('office api');return r.json();}).then(function(json){
+        var rows=officeRows(json);
+        rows.forEach(function(o){var key=String(o.id||o.code||officeLabel(o));if(!seen[key]){seen[key]=1;all.push(o);}});
+        var next=nextOffset(json);
+        if(next!==null && isFinite(next) && next>offset && rows.length && pages<30) return page(next);
+        return all;
       });
+    }
+    return page(0);
+  }
+  function renderOffices(rows){
+    officeResults.innerHTML='';
+    if(!rows.length){officeStatus.textContent='Nu am găsit puncte FAN pentru această căutare.';officeResults.classList.remove('show');return;}
+    officeStatus.textContent=rows.length+' puncte găsite. Selectează unul.';
+    rows.forEach(function(o){
+      var b=document.createElement('button');b.type='button';b.className='office-result';b.setAttribute('role','option');
+      var strong=document.createElement('b');strong.textContent=officeLabel(o);
+      var small=document.createElement('small');small.textContent=officeSub(o);
+      b.appendChild(strong);if(small.textContent)b.appendChild(small);
+      b.addEventListener('click',function(){selectedOffice=o;officeSearch.value=officeLabel(o);officeResults.classList.remove('show');officeSelectedBox.textContent='Selectat: '+officeLabel(o)+(officeSub(o)?' · '+officeSub(o):'');officeSelectedBox.classList.add('show');officeStatus.textContent='Punct FAN selectat.';});
+      officeResults.appendChild(b);
     });
+    officeResults.classList.add('show');
+  }
+  officeSearch.addEventListener('input',function(){
+    selectedOffice=null;officeSelectedBox.classList.remove('show');officeSelectedBox.textContent='';clearTimeout(searchTimer);
+    var term=this.value.trim();
+    if(term.length<2){officeResults.classList.remove('show');officeResults.innerHTML='';officeStatus.textContent='Introduceți cel puțin 2 caractere pentru a căuta.';return;}
+    if(!ensureOfficeProxyConfigured()){officeResults.classList.remove('show');officeStatus.textContent='Căutarea FAN Courier este temporar indisponibilă. Alege livrarea la adresă.';return;}
+    officeStatus.textContent='Se caută în lista FAN Courier...';
+    searchTimer=setTimeout(function(){fetchAllOfficeMatches(term).then(renderOffices).catch(function(){officeResults.classList.remove('show');officeStatus.textContent='Lista FAN Courier nu a putut fi încărcată. Încearcă din nou sau alege livrarea la adresă.';});},300);
   });
 
-  /* ---- Contact event on phone click ---- */
-  document.querySelectorAll('.tel-link').forEach(function(a){
-    a.addEventListener('click', function(){ if(typeof fbq==='function'){ fbq('track','Contact'); } });
+  checkoutForm.addEventListener('submit',function(e){
+    e.preventDefault(); if(isSubmitting) return;
+    checkoutError.style.display='none';checkoutError.textContent='';
+    var first=val('Prenume'),last=val('Nume'),email=val('E-Mail'),phone=val('Telefon');
+    var method=checkoutForm.querySelector('input[name="delivery_method"]:checked').value;
+    var isOffice=method.indexOf('oficiu')>-1;
+    var terms=checkoutForm.elements['terms_accepted'].checked;
+    if(first.length<2) checkoutError.textContent='Completează câmpul Prenume.';
+    else if(last.length<2) checkoutError.textContent='Completează câmpul Nume.';
+    else if(!validEmail(email)) checkoutError.textContent='Introdu o adresă E-Mail validă.';
+    else if(!validPhone(phone)) checkoutError.textContent='Introdu un număr de Telefon valid.';
+    else if(isOffice && !selectedOffice) checkoutError.textContent='Selectează un birou sau locker FAN Courier din lista de rezultate.';
+    else if(!isOffice && (val('Oraș').length<2 || val('Cod Poștal').length<2 || val('Adresă - stradă și număr').length<2)) checkoutError.textContent='Completează Oraș, Cod Poștal și Adresă - stradă și număr.';
+    else if(!terms) checkoutError.textContent='Trebuie să accepți TERMENI SI CONDITII DE UTILIZARE.';
+    if(checkoutError.textContent){checkoutError.style.display='block';return;}
+
+    var payload={
+      access_key:ACCESS_KEY,
+      subject:'Comanda noua: Ferastrau 36V 10.0Ah - 324 lei total',
+      from_name:'Landing ToolTrader24 - Ferastrau 36V',
+      'Prenume':first,'Nume':last,'E-Mail':email,'Telefon':phone,
+      'Metoda de plata':'Plata la livrare','Metoda de livrare':method,
+      'Comentarii':val('Comentarii') || '-',
+      'Produs':PRODUCT,'Cantitate':1,'Pret produs':PRICE+' RON','Subtotal':PRICE+' RON',
+      'Taxa livrare':DELIVERY_FEE+' RON','Total':TOTAL+' RON','Moneda':'RON','terms_accepted':'DA',
+      pagina:location.href
+    };
+    if(isOffice && selectedOffice){
+      payload['Birou/locker']=officeLabel(selectedOffice);
+      payload['office_id']=selectedOffice.id || '';
+      payload['office_code']=selectedOffice.code || '';
+      payload['office_name']=selectedOffice.name || selectedOffice.office_name || '';
+      payload['office_address']=selectedOffice.address || '';
+      payload['office_city']=selectedOffice.city || selectedOffice.locality || '';
+      payload['office_postcode']=selectedOffice.postcode || selectedOffice.postal_code || '';
+      payload['office_is_machine']=selectedOffice.is_machine===true ? 'DA' : (selectedOffice.is_machine===false ? 'NU' : '');
+    }else{
+      payload['Oraș']=val('Oraș');payload['Cod Poștal']=val('Cod Poștal');payload['Adresă - stradă și număr']=val('Adresă - stradă și număr');
+    }
+
+    isSubmitting=true;submitBtn.disabled=true;var old=submitBtn.innerHTML;submitBtn.textContent='SE TRIMITE...';
+    fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)})
+      .then(function(r){return r.json();})
+      .then(function(res){
+        if(!(res&&res.success)) throw new Error('submit failed');
+        checkoutForm.style.display='none';checkoutSuccess.style.display='block';
+        if(!purchased && typeof fbq==='function'){fbq('track','Purchase',{value:TOTAL,currency:'RON',content_name:PRODUCT,content_type:'product'});purchased=true;}
+      })
+      .catch(function(){isSubmitting=false;submitBtn.disabled=false;submitBtn.innerHTML=old;checkoutError.textContent='Comanda nu a putut fi trimisă. Verifică internetul și încearcă din nou.';checkoutError.style.display='block';});
   });
 
   /* ---- FAQ accordion ---- */
   document.querySelectorAll('.faq-q').forEach(function(q){
     q.addEventListener('click', function(){
-      var item = q.parentNode, a = item.querySelector('.faq-a'), open = item.classList.toggle('open');
-      q.setAttribute('aria-expanded', open);
-      a.style.maxHeight = open ? a.scrollHeight + 'px' : '0';
+      var item=q.parentNode,a=item.querySelector('.faq-a'),open=item.classList.toggle('open');
+      q.setAttribute('aria-expanded',open);a.style.maxHeight=open?a.scrollHeight+'px':'0';
     });
   });
 
-  /* ---- Sticky bar: after hero form, hidden near final form ---- */
-  var sticky = document.getElementById('sticky'), f1 = document.getElementById('form1'), fin = document.getElementById('final'), sBtn = document.getElementById('stickyBtn');
-  function onScroll(){
-    var pastHero = f1.getBoundingClientRect().bottom < 0;
-    var atEnd = fin.getBoundingClientRect().top < window.innerHeight * 0.85;
-    var show = pastHero && !atEnd;
-    sticky.classList.toggle('show', show);
-    sticky.setAttribute('aria-hidden', !show);
-    sBtn.tabIndex = show ? 0 : -1;
-  }
-  window.addEventListener('scroll', onScroll, {passive:true}); onScroll();
-  sBtn.addEventListener('click', function(e){
-    e.preventDefault();
-    document.getElementById('form2').scrollIntoView({behavior:'smooth', block:'center'});
-    setTimeout(function(){ var i=document.getElementById('phone2'); if(i) i.focus({preventScroll:true}); }, 600);
-  });
+  document.querySelectorAll('a[href="#checkout"]').forEach(function(a){a.addEventListener('click',function(e){e.preventDefault();document.getElementById('checkout').scrollIntoView({behavior:'smooth',block:'start'});setTimeout(function(){var i=checkoutForm.elements['Prenume'];if(i)i.focus({preventScroll:true});},550);});});
 })();
 </script>
 </body>
