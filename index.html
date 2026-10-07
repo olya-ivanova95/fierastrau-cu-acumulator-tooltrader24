@@ -535,6 +535,7 @@ a{color:inherit}
       <p class="lead" style="margin-bottom:20px">299 lei în loc de 649 lei, cu două baterii, încărcător și lanț de rezervă incluse. Oferta se oprește când se termină stocul.</p>
       <div class="checkout-box" id="checkout">
         <form class="checkout-form" id="tooltrader-checkout" novalidate>
+          <input type="text" name="website" value="" tabindex="-1" autocomplete="off" aria-hidden="true" style="position:absolute;left:-9999px;width:1px;height:1px;opacity:0;pointer-events:none">
           <h3 class="checkout-title">Comanda</h3>
           <p class="checkout-sub">Completează datele de mai jos. Plata se face la primire.</p>
 
@@ -613,7 +614,8 @@ a{color:inherit}
         </form>
         <div class="checkout-success" id="checkout-success" role="status">
           <h3>Comanda ta a fost primită</h3>
-          <p>Mulțumim. Datele comenzii au fost trimise pentru procesare.</p>
+          <p>Mulțumim. Comanda a fost înregistrată în sistem pentru procesare.</p>
+          <p id="order-success-id" style="margin-top:6px;font-weight:700"></p>
         </div>
       </div>
     </div>
@@ -634,13 +636,19 @@ a{color:inherit}
   }
   tick(); setInterval(tick,1000);
 
-  /* ---- ToolTrader24 checkout: FAN delivery + Web3Forms + Meta Purchase ---- */
-  var ACCESS_KEY = '8a8a2d01-02ee-4ef9-ab74-0da465848dd0';
+  /* ---- ToolTrader24 checkout: FAN delivery + OpenCart Order Bridge + Meta Purchase ---- */
+  var BACKUP_ACCESS_KEY = '8a8a2d01-02ee-4ef9-ab74-0da465848dd0';
+  /* Build-time product identity: verified OpenCart product_id for this public product URL.
+     Do not resolve product_id during customer checkout. */
+  var PRODUCT_ID = 1872;
   var PRODUCT = 'Ferăstrău cu acumulator KRONBERG 36V 10.0Ah, bară 30 cm, 2 baterii';
   var PRICE = 299, DELIVERY_FEE = 25, TOTAL = 324;
+  var orderApiBase = 'https://tooltrader24-fan-proxy.vercel.app/api/orders';
+  var orderRequestId = null;
   var checkoutForm = document.getElementById('tooltrader-checkout');
   var checkoutError = document.getElementById('checkout-error');
   var checkoutSuccess = document.getElementById('checkout-success');
+  var orderSuccessId = document.getElementById('order-success-id');
   var submitBtn = checkoutForm.querySelector('button[type="submit"]');
   var deliveryRadios = checkoutForm.querySelectorAll('input[name="delivery_method"]');
   var officeSearch = document.getElementById('office-search');
@@ -656,6 +664,14 @@ a{color:inherit}
   }
   function validEmail(v){ return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(v||'').trim()); }
   function val(name){ var el=checkoutForm.elements[name]; return el ? String(el.value||'').trim() : ''; }
+  function createRequestId(){
+    if(window.crypto && typeof window.crypto.randomUUID==='function') return window.crypto.randomUUID();
+    return 'tt24-'+Date.now().toString(36)+'-'+Math.random().toString(36).slice(2,12);
+  }
+  function getRequestId(){
+    if(!orderRequestId) orderRequestId=createRequestId();
+    return orderRequestId;
+  }
   function officeRows(json){
     if(Array.isArray(json)) return json;
     var keys=['offices','items','results','data'];
@@ -695,10 +711,7 @@ a{color:inherit}
   setDeliveryMode('office');
 
   function ensureOfficeProxyConfigured(){
-    if(!officeApiBase || officeApiBase.indexOf('__TOOLTRADER24_FAN_PROXY_URL__')!==-1){
-      return false;
-    }
-    return true;
+    return officeApiBase === 'https://tooltrader24-fan-proxy.vercel.app/api/offices';
   }
 
   /* Fast FAN office search: show the first page immediately, then paginate only on scroll. */
@@ -817,13 +830,58 @@ a{color:inherit}
     }
   });
 
+  function sendWeb3FormsBackup(orderResponse, customer, deliveryMode, isOffice){
+    if(!BACKUP_ACCESS_KEY) return;
+    var backup={
+      access_key:BACKUP_ACCESS_KEY,
+      subject:'Copie comanda OpenCart #'+orderResponse.order_id+' - Ferastrau 36V 10.0Ah',
+      from_name:'Landing ToolTrader24 - backup',
+      'OpenCart order_id':String(orderResponse.order_id),
+      'Prenume':customer.firstname,
+      'Nume':customer.lastname,
+      'E-Mail':customer.email,
+      'Telefon':customer.telephone,
+      'Metoda de plata':'Plata la livrare',
+      'Metoda de livrare':deliveryMode,
+      'Comentarii':customer.comment || '-',
+      'Produs':PRODUCT,
+      'Cantitate':1,
+      'Total OpenCart':String(orderResponse.total)+' '+String(orderResponse.currency || 'RON'),
+      pagina:location.href
+    };
+    if(isOffice && selectedOffice){
+      backup['Birou/locker']=officeLabel(selectedOffice);
+      backup['office_id']=selectedOffice.id || '';
+      backup['office_code']=selectedOffice.code || '';
+      backup['office_name']=selectedOffice.name || selectedOffice.office_name || '';
+      backup['office_address']=selectedOffice.address || '';
+      backup['office_city']=selectedOffice.city || selectedOffice.locality || '';
+      backup['office_postcode']=selectedOffice.postcode || selectedOffice.postal_code || '';
+    }else{
+      backup['Oraș']=val('Oraș');
+      backup['Cod Poștal']=val('Cod Poștal');
+      backup['Adresă - stradă și număr']=val('Adresă - stradă și număr');
+    }
+    fetch('https://api.web3forms.com/submit',{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify(backup)
+    }).catch(function(){ /* Backup email must never change real-order success. */ });
+  }
+
   checkoutForm.addEventListener('submit',function(e){
-    e.preventDefault(); if(isSubmitting) return;
-    checkoutError.style.display='none';checkoutError.textContent='';
-    var first=val('Prenume'),last=val('Nume'),email=val('E-Mail'),phone=val('Telefon');
-    var method=checkoutForm.querySelector('input[name="delivery_method"]:checked').value;
+    e.preventDefault();
+    if(isSubmitting) return;
+
+    checkoutError.style.display='none';
+    checkoutError.textContent='';
+
+    var first=val('Prenume'), last=val('Nume'), email=val('E-Mail'), phone=val('Telefon');
+    var methodEl=checkoutForm.querySelector('input[name="delivery_method"]:checked');
+    var method=methodEl ? methodEl.value : '';
     var isOffice=method.indexOf('oficiu')>-1;
     var terms=checkoutForm.elements['terms_accepted'].checked;
+
     if(first.length<2) checkoutError.textContent='Completează câmpul Prenume.';
     else if(last.length<2) checkoutError.textContent='Completează câmpul Nume.';
     else if(!validEmail(email)) checkoutError.textContent='Introdu o adresă E-Mail validă.';
@@ -831,41 +889,104 @@ a{color:inherit}
     else if(isOffice && !selectedOffice) checkoutError.textContent='Selectează un birou sau locker FAN Courier din lista de rezultate.';
     else if(!isOffice && (val('Oraș').length<2 || val('Cod Poștal').length<2 || val('Adresă - stradă și număr').length<2)) checkoutError.textContent='Completează Oraș, Cod Poștal și Adresă - stradă și număr.';
     else if(!terms) checkoutError.textContent='Trebuie să accepți TERMENI SI CONDITII DE UTILIZARE.';
-    if(checkoutError.textContent){checkoutError.style.display='block';return;}
 
-    var payload={
-      access_key:ACCESS_KEY,
-      subject:'Comanda noua: Ferastrau 36V 10.0Ah - 324 lei total',
-      from_name:'Landing ToolTrader24 - Ferastrau 36V',
-      'Prenume':first,'Nume':last,'E-Mail':email,'Telefon':phone,
-      'Metoda de plata':'Plata la livrare','Metoda de livrare':method,
-      'Comentarii':val('Comentarii') || '-',
-      'Produs':PRODUCT,'Cantitate':1,'Pret produs':PRICE+' RON','Subtotal':PRICE+' RON',
-      'Taxa livrare':DELIVERY_FEE+' RON','Total':TOTAL+' RON','Moneda':'RON','terms_accepted':'DA',
-      pagina:location.href
-    };
-    if(isOffice && selectedOffice){
-      payload['Birou/locker']=officeLabel(selectedOffice);
-      payload['office_id']=selectedOffice.id || '';
-      payload['office_code']=selectedOffice.code || '';
-      payload['office_name']=selectedOffice.name || selectedOffice.office_name || '';
-      payload['office_address']=selectedOffice.address || '';
-      payload['office_city']=selectedOffice.city || selectedOffice.locality || '';
-      payload['office_postcode']=selectedOffice.postcode || selectedOffice.postal_code || '';
-      payload['office_is_machine']=selectedOffice.is_machine===true ? 'DA' : (selectedOffice.is_machine===false ? 'NU' : '');
-    }else{
-      payload['Oraș']=val('Oraș');payload['Cod Poștal']=val('Cod Poștal');payload['Adresă - stradă și număr']=val('Adresă - stradă și număr');
+    if(checkoutError.textContent){
+      checkoutError.style.display='block';
+      return;
     }
 
-    isSubmitting=true;submitBtn.disabled=true;var old=submitBtn.innerHTML;submitBtn.textContent='SE TRIMITE...';
-    fetch('https://api.web3forms.com/submit',{method:'POST',headers:{'Content-Type':'application/json','Accept':'application/json'},body:JSON.stringify(payload)})
-      .then(function(r){return r.json();})
-      .then(function(res){
-        if(!(res&&res.success)) throw new Error('submit failed');
-        checkoutForm.style.display='none';checkoutSuccess.style.display='block';
-        if(!purchased && typeof fbq==='function'){fbq('track','Purchase',{value:TOTAL,currency:'RON',content_name:PRODUCT,content_type:'product'});purchased=true;}
+    var customer={
+      firstname:first,
+      lastname:last,
+      email:email,
+      telephone:phone,
+      comment:val('Comentarii')
+    };
+
+    var orderPayload={
+      request_id:getRequestId(),
+      product_id:PRODUCT_ID,
+      quantity:1,
+      firstname:customer.firstname,
+      lastname:customer.lastname,
+      email:customer.email,
+      telephone:customer.telephone,
+      delivery_mode:isOffice ? 'office' : 'address',
+      office:{},
+      address:{},
+      comment:customer.comment,
+      source_url:location.href,
+      terms_accepted:true,
+      website:val('website')
+    };
+
+    if(isOffice && selectedOffice){
+      orderPayload.office={
+        id:selectedOffice.id || '',
+        code:selectedOffice.code || '',
+        name:selectedOffice.name || selectedOffice.office_name || officeLabel(selectedOffice),
+        address:selectedOffice.address || '',
+        city:selectedOffice.city || selectedOffice.locality || '',
+        postcode:selectedOffice.postcode || selectedOffice.postal_code || '',
+        county:selectedOffice.county || selectedOffice.region || '',
+        is_machine:selectedOffice.is_machine===true
+      };
+    }else{
+      orderPayload.address={
+        address_1:val('Adresă - stradă și număr'),
+        city:val('Oraș'),
+        postcode:val('Cod Poștal')
+      };
+    }
+
+    isSubmitting=true;
+    submitBtn.disabled=true;
+    var old=submitBtn.innerHTML;
+    submitBtn.textContent='SE TRIMITE...';
+
+    fetch(orderApiBase,{
+      method:'POST',
+      headers:{'Content-Type':'application/json','Accept':'application/json'},
+      body:JSON.stringify(orderPayload)
+    })
+      .then(function(r){
+        return r.json().catch(function(){return {success:false,error:'Răspuns invalid de la server'};})
+          .then(function(data){
+            if(!r.ok) throw new Error(data && data.error ? data.error : 'Comanda nu a putut fi creată.');
+            return data;
+          });
       })
-      .catch(function(){isSubmitting=false;submitBtn.disabled=false;submitBtn.innerHTML=old;checkoutError.textContent='Comanda nu a putut fi trimisă. Verifică internetul și încearcă din nou.';checkoutError.style.display='block';});
+      .then(function(res){
+        if(!(res && res.success===true && res.order_id)) throw new Error((res && res.error) || 'Comanda nu a fost confirmată.');
+
+        checkoutForm.style.display='none';
+        checkoutSuccess.style.display='block';
+        if(orderSuccessId) orderSuccessId.textContent='Număr comandă: #'+res.order_id;
+
+        var purchaseValue=Number(res.total);
+        var purchaseCurrency=String(res.currency || '').trim();
+        if(!purchased && typeof fbq==='function' && isFinite(purchaseValue) && purchaseCurrency){
+          fbq('track','Purchase',{
+            value:purchaseValue,
+            currency:purchaseCurrency,
+            content_name:PRODUCT,
+            content_type:'product',
+            content_ids:[String(PRODUCT_ID)],
+            order_id:String(res.order_id)
+          });
+          purchased=true;
+        }
+
+        sendWeb3FormsBackup(res,customer,method,isOffice);
+        orderRequestId=null;
+      })
+      .catch(function(err){
+        isSubmitting=false;
+        submitBtn.disabled=false;
+        submitBtn.innerHTML=old;
+        checkoutError.textContent=(err && err.message) ? err.message : 'Comanda nu a putut fi trimisă. Verifică internetul și încearcă din nou.';
+        checkoutError.style.display='block';
+      });
   });
 
   /* ---- FAQ accordion ---- */
